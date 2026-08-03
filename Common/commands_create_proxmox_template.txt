@@ -1,0 +1,44 @@
+# Il faut déposer le fichier qcow dans storage local > Importer > Téléverser
+
+# 1) Créer la VM (sans disque)
+sudo qm create 9000 \
+  --name "debian-13-raw" \
+  --memory 1024 \
+  --net0 virtio,bridge=vmbr0
+
+# 2) Importer le disque depuis l’image qcow2
+sudo qm importdisk 9000 \
+  /var/lib/vz/import/debian-13-generic-amd64.qcow2 \
+  local-lvm
+
+# 3) Attacher le disque importé comme SCSI et définir le contrôleur
+sudo qm set 9000 \
+  --scsihw virtio-scsi-pci \
+  --scsi0 local-lvm:vm-9000-disk-0
+
+# 4) Ajouter le support Cloud-Init (optionnel mais recommandé)
+sudo qm set 9000 \
+  --ide2 local-lvm:cloudinit
+
+# 5) Définir l’ordre de boot pour démarrer sur le disque système
+sudo qm set 9000 \
+  --boot order=scsi0
+
+# 6) Ajouter l'agent QEMU
+sudo qm set 9000 --agent enabled=1
+
+
+# 7) Ajouter le snippet init.yml 
+
+pvesm set local --content iso,vztmpl,backup,snippets
+
+vim /var/lib/vz/snippets/init.yml
+
+pvesm list local | grep snippets
+
+
+# 8) Marquer la VM comme template
+sudo qm template 9000
+
+# 9) Vérifier
+sudo qm list

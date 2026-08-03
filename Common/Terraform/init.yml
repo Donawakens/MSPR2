@@ -1,0 +1,29 @@
+#cloud-config
+
+# Initialisation automatique via Proxmox (local:snippets/init.yml)#
+
+upgrade_packages: true
+
+packages:
+  - qemu-guest-agent
+  - python3
+  - python3-pip
+  - curl
+  - sudo
+
+users:
+  - name: ansible
+    gecos: Utilisateur d'automatisation Ansible
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOgq87YJNe2c0uQH8h0HAjGGn088XbOeEpKQcKHERV4u Ansible
+
+runcmd:
+  - sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+  - sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+  - systemctl restart sshd
+  - echo "Initialisation système prête pour Ansible." > /var/log/init_done.log
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
