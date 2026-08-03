@@ -1,0 +1,14 @@
+[all:vars]
+ansible_user=ansible
+ansible_ssh_private_key_file=~/MSPR/MSPR2/ansible_key
+
+[admin]
+ADMIN-SRV-2 ansible_host=${admin_ip}
+
+[nextcloud]
+FILE-SRV-2 ansible_host=${nextcloud_replicas_ip}
+
+
+[linux:children]
+admin
+nextcloud

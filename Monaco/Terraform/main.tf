@@ -1,0 +1,138 @@
+terraform {
+  required_providers {
+    proxmox = {
+      source  = "bpg/proxmox"
+      version = "~> 0.70"
+    }
+  }
+}
+
+provider "proxmox" {
+  endpoint = "https://${var.pm_host_ip}:8006/"
+
+  api_token = "${var.pm_token_id}=${var.pm_token_secret}"
+
+  insecure = true
+}
+
+########################################
+# VM Nextcloud Réplicas - FILE-SRV-1
+########################################
+
+resource "proxmox_virtual_environment_vm" "nextcloud" {
+
+  name      = "FILE-SRV-2"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.base_cloud_image_id
+  }
+
+  description = "Serveur de stockage et collaboration Nextcloud - Réplicas"
+
+  agent {
+    enabled = false
+  }
+
+  cpu {
+    cores = 2
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 40
+  }
+
+
+  network_device {
+    bridge  = "vmbr0"
+    model   = "virtio"
+    vlan_id = tonumber(var.vlan_tag)
+  }
+
+
+  initialization {
+
+    ip_config {
+      ipv4 {
+        address = "${var.nextcloud_replicas_ip}/${var.cidr_vlan_21}"
+        gateway = var.gateway_vlan_21
+      }
+    }
+
+    user_data_file_id = "local:snippets/init.yml"
+
+  }
+
+}
+
+
+
+####################################
+# VM ADMIN ANSIBLE
+####################################
+
+resource "proxmox_virtual_environment_vm" "admin" {
+
+  name      = "ADMIN-SRV-2"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.base_cloud_image_id
+  }
+
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 20
+  }
+
+  network_device {
+    bridge  = "vmbr0"
+    model   = "virtio"
+    vlan_id = tonumber(var.vlan_tag)
+  }
+
+  network_device {  # Pour réseau en 172
+    bridge  = "vmbr0"
+    model   = "virtio"
+  }
+
+
+
+  initialization {
+
+    ip_config {
+      ipv4 {
+        address = "${var.admin_ip}/${var.cidr_vlan_21}"
+        # vlan_id = tonumber(var.vlan_tag)  ?
+        # gateway = var.gateway_vlan_21 --> Le temps d'avoir déployé avec Ansible ou d'avoir un firewall
+      }
+    }
+
+    ip_config {  # Pour admin en 172
+      ipv4 {
+        address = "172.16.158.21/16"
+        gateway = "172.16.255.254"
+      }
+    }
+
+    user_data_file_id = "local:snippets/init.yml"
+
+  }
+}
