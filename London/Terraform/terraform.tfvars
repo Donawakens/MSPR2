@@ -1,0 +1,5 @@
+pm_host_ip      = "172.16.158.2"
+pm_token_id     = "terraform@pve!tf"
+pm_token_secret = "08297ef6-15cb-4c48-a7fd-4a32c7cd70e1"
+pm_node         = "px-london"
+pm_storage      = "local-lvm"
