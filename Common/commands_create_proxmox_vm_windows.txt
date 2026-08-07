@@ -1,0 +1,28 @@
+# 1) Créer la VM avec la configuration matérielle optimisée pour Windows
+sudo qm create 9100 \
+  --name "win-2022-template" \
+  --ostype win11 \
+  --cpu host \
+  --cores 2 \
+  --memory 4096 \
+  --net0 virtio,bridge=vmbr0 \
+  --scsihw virtio-scsi-pci
+
+# 2) Créer un disque virtuel vierge de 60 Go sur le stockage local (ou local-lvm)
+sudo qm set 9100 --scsi0 local-lvm:40
+
+# 3) Attacher l'ISO Windows (Lecteur IDE 0)
+sudo qm set 9100 --ide0 local:iso/win_server.iso,media=cdrom
+
+# 4) Attacher l'ISO des pilotes VirtIO (Lecteur IDE 2)
+sudo qm set 9100 --ide2 local:iso/virtio-win.iso,media=cdrom
+
+# 5) Ajouter le lecteur Cloud-Init (utilisé par Cloudbase-Init pour Terraform)
+sudo qm set 9100 --sata0 local:cloudinit
+
+# 6) Configurer l'agent QEMU et l'ordre de boot (Boot sur le CD Windows d'abord)
+sudo qm set 9100 --agent enabled=1
+sudo qm set 9100 --boot order="ide0;scsi0"
+
+# 7) Démarrer la VM pour procéder à l'installation graphique via VNC/Proxmox Console
+sudo qm start 9100

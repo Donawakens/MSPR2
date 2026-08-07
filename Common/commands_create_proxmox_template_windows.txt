@@ -1,0 +1,61 @@
+Vous êtes sur l'interface SConfig d'une version Server Core. Pour finaliser la préparation du template (installation des pilotes VirtIO, WinRM et Cloudbase-Init), il faut basculer en invite de commande PowerShell.
+Étapes à suivre
+Quitter SConfig vers PowerShell
+Tapez : 15 puis appuyez sur Entrée.
+
+Exécuter le script de configuration WinRM.
+Dans la fenêtre PowerShell qui s'ouvre, exécutez :
+
+-------------
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -Type DWord
+winrm quickconfig -q
+Set-Service -Name winrm -StartupType Automatic
+winrm set winrm/config/service/auth '@{Basic="true"}'
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+New-NetFirewallRule -Name "WinRM-HTTP" -DisplayName "WinRM (HTTP-In)" -Enabled True -Direction Inbound -Protocol TCP -LocalPort 5985 -Action Allow
+New-NetFirewallRule -Name "WinRM-HTTPS" -DisplayName "WinRM (HTTPS-In)" -Enabled True -Direction Inbound -Protocol TCP -LocalPort 5986 -Action Allow
+Enable-WSManCredSSP -Role Server -Force
+-------------
+
+Installer les pilotes VirtIO. Identifiez la lettre attribuée au lecteur CD VirtIO :
+-------------
+Get-PSDrive -PSProvider FileSystem
+-------------
+
+Lancez ensuite l'installation des pilotes en remplaçant D: par la bonne lettre :
+-------------
+Start-Process -FilePath "D:\virtio-win-gt-x64.msi" -ArgumentList "/passive" -Wait
+Télécharger et installer Cloudbase-Init
+Téléchargez l'installateur :
+Invoke-WebRequest -Uri "https://cloudbase.it/downloads/CloudbaseInitSetup_x64.msi" -OutFile "$env:TEMP\CloudbaseInitSetup_x64.msi"
+-------------
+
+Lancez ensuite l'installation :
+-------------
+Start-Process -FilePath "$env:TEMP\CloudbaseInitSetup_x64.msi"
+-------------
+
+
+Installation de l'agent QEMU :
+------------
+Start-Process msiexec.exe -ArgumentList '/i G:\guest-agent\qemu-ga-x86_64.msi /qn /norestart' -Wait
+sc.exe config QEMU-GA start= auto
+Start-Service -Name "QEMU-GA"
+------------
+
+
+À la dernière étape, décochez l'option de lancement automatique de Sysprep.
+
+Lancer le Sysprep final. Exécutez :
+# Supprime l'historique d'exécution des plugins Cloudbase-Init
+Remove-Item -Path "HKLM:\SOFTWARE\Cloudbase Solutions\Cloudbase-Init\*" -Recurse -ErrorAction SilentlyContinue
+
+# Nettoie les journaux
+Remove-Item -Path "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\log\*" -Recurse -ErrorAction SilentlyContinue
+
+C:\Windows\System32\Sysprep\sysprep.exe /oobe /generalize /shutdown
+
+Une fois la VM éteinte, vous pourrez lancer sur le serveur Proxmox :
+-------------
+sudo qm template 9100
+-------------
