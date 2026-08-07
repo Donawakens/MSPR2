@@ -200,3 +200,117 @@ resource "proxmox_virtual_environment_vm" "admin" {
 
   }
 }
+
+
+####################################
+# VM Windows Server - WIN-SRV-1
+####################################
+
+resource "proxmox_virtual_environment_vm" "win_srv_1" {
+
+  name      = "WIN-SRV-1"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.windows_template_id
+  }
+
+  description = "Serveur Windows 1"
+
+  agent {
+    enabled = true
+  }
+
+  cpu {
+    cores = 2
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 60
+  }
+
+  network_device {
+    bridge  = "vmbr0"
+    model   = "virtio"
+    vlan_id = tonumber(var.vlan_tag)
+  }
+
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "${var.active_directory_ip}/${var.cidr_vlan_11}"
+        gateway = var.gateway_vlan_11
+      }
+    }
+
+
+    user_account {
+      username = "ansible"
+      password = "adminadmin"
+    }
+  }
+}
+
+
+####################################
+# VM Windows Server - BV-SRV-1
+####################################
+
+resource "proxmox_virtual_environment_vm" "bv_srv_1" {
+
+  name      = "BV-SRV-1"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.windows_template_id
+  }
+
+  description = "Serveur Windows 2 (BV-SRV-1)"
+
+  agent {
+    enabled = true
+  }
+
+  cpu {
+    cores = 2
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 60
+  }
+
+  network_device {
+    bridge  = "vmbr0"
+    model   = "virtio"
+    vlan_id = tonumber(var.vlan_tag)
+  }
+
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "${var.bureau_virtuel_ip}/${var.cidr_vlan_11}"
+        gateway = var.gateway_vlan_11
+      }
+    }
+
+
+    user_account {
+      username = "ansible"
+      password = "adminadmin"
+    }
+  }
+}

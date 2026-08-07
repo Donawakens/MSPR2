@@ -29,6 +29,11 @@ variable "base_cloud_image_id" {
   default     = 9000
 }
 
+variable "windows_template_id" {
+  type        = number
+  description = "ID du template Windows"
+  default     = 9500 
+}
 
 ########### RÉSEAU VLAN 11 ###########
 
@@ -47,6 +52,9 @@ variable "cidr_vlan_11" {
   default = 24
 }
 
+########### IP MACHINES RÉSEAU VLAN 11 ###########
+
+
 variable "nextcloud_ip" {
   type    = string
   default = "192.168.11.3"
@@ -60,4 +68,14 @@ variable "supervision_ip" {
 variable "admin_ip" {
   type    = string
   default = "192.168.11.10"
+}
+
+variable "active_directory_ip" {
+  type    = string
+  default = "192.168.11.2"
+}
+
+variable "bureau_virtuel_ip" {
+  type    = string
+  default = "192.168.11.5"
 }

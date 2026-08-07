@@ -6,5 +6,7 @@ resource "local_file" "ansible_inventory" {
     admin_ip        = var.admin_ip
     nextcloud_ip    = var.nextcloud_ip
     supervision_ip  = var.supervision_ip
+    active_directory_ip   = var.active_directory_ip
+    bureau_virtuel_ip    = var.bureau_virtuel_ip
   })
 }
