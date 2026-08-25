@@ -42,7 +42,7 @@ variable "gateway_vlan_11" {
   default = "192.168.11.1"
 }
 
-variable "vlan_tag" {
+variable "tag_vlan_11" {
   type    = number
   default = 11
 }
@@ -52,8 +52,44 @@ variable "cidr_vlan_11" {
   default = 24
 }
 
-########### IP MACHINES RÉSEAU VLAN 11 ###########
+########### RÉSEAU VLAN 10 ###########
 
+variable "gateway_vlan_10" {
+  type    = string
+  default = "192.168.10.1"
+}
+
+variable "tag_vlan_10" {
+  type    = number
+  default = 10
+}
+
+variable "cidr_vlan_10" {
+  type    = number
+  default = 24
+}
+
+
+########### IP FIREWALL WAN ###########
+
+variable "firewall_wan_ip" {
+  type    = string
+  default = "172.16.158.3"
+}
+
+variable "gateway_wan_ip" {
+  type    = string
+  default = "172.16.255.254"
+}
+
+variable "cidr_wan_gateway" {
+  type    = number
+  default = 16
+}
+
+# Reste des IP via les gateway
+
+########### IP MACHINES RÉSEAU VLAN 11 ###########
 
 variable "nextcloud_ip" {
   type    = string

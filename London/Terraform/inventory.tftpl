@@ -11,10 +11,18 @@ FILE-SRV-1 ansible_host=${nextcloud_ip}
 [supervision]
 SUP-SRV-1 ansible_host=${supervision_ip}
 
+[firewall]
+FW-LDN-1 ansible_host=${firewall_wan_ip}
+
+[firewall:vars]
+firewall_vlan10_ip=${firewall_vlan10_ip}
+firewall_vlan11_ip=${firewall_vlan11_ip}
+
 [linux:children]
 admin
 nextcloud
 supervision
+firewall
 
 [windows]
 WIN-SRV-1 ansible_host=${active_directory_ip}

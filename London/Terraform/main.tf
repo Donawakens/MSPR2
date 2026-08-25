@@ -52,9 +52,9 @@ resource "proxmox_virtual_environment_vm" "nextcloud" {
 
 
   network_device {
-    bridge  = "vmbr0"
+    bridge  = "vmbr1"
     model   = "virtio"
-    vlan_id = tonumber(var.vlan_tag)
+    vlan_id = tonumber(var.tag_vlan_11)
   }
 
 
@@ -115,9 +115,9 @@ resource "proxmox_virtual_environment_vm" "supervision" {
 
 
   network_device {
-    bridge  = "vmbr0"
+    bridge  = "vmbr1"
     model   = "virtio"
-    vlan_id = tonumber(var.vlan_tag)
+    vlan_id = tonumber(var.tag_vlan_11)
   }
 
 
@@ -167,15 +167,11 @@ resource "proxmox_virtual_environment_vm" "admin" {
   }
 
   network_device {
-    bridge  = "vmbr0"
+    bridge  = "vmbr1"
     model   = "virtio"
-    vlan_id = tonumber(var.vlan_tag)
+    vlan_id = tonumber(var.tag_vlan_11)
   }
 
-  network_device {  # Pour réseau en 172
-    bridge  = "vmbr0"
-    model   = "virtio"
-  }
 
 
 
@@ -184,15 +180,80 @@ resource "proxmox_virtual_environment_vm" "admin" {
     ip_config {
       ipv4 {
         address = "${var.admin_ip}/${var.cidr_vlan_11}"
-        # vlan_id = tonumber(var.vlan_tag)  ?
-        # gateway = var.gateway_vlan_11 --> Le temps d'avoir déployé avec Ansible ou d'avoir un firewall
+        gateway = var.gateway_vlan_11
       }
     }
 
-    ip_config {  # Pour admin en 172
+
+    user_data_file_id = "local:snippets/init.yml"
+
+  }
+}
+
+
+####################################
+# VM FIREWALL
+####################################
+
+resource "proxmox_virtual_environment_vm" "firewall" {
+
+  name      = "FW-LDN-1"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.base_cloud_image_id
+  }
+
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 20
+  }
+
+  network_device {
+    bridge  = "vmbr0"
+    model   = "virtio"
+  }
+
+  network_device { 
+    bridge  = "vmbr1"
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_11)
+  }
+
+  network_device { 
+    bridge  = "vmbr2"
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_10)
+  }
+
+
+  initialization {
+
+    ip_config {
+      ipv4 { # vmbr0
+        address = "${var.firewall_wan_ip}/${var.cidr_wan_gateway}"
+        gateway = var.gateway_wan_ip
+      }
+    }
+
+    ip_config {  # vmbr1 (VLAN 11)
       ipv4 {
-        address = "172.16.158.10/16"
-        gateway = "172.16.255.254"
+        address = "${var.gateway_vlan_11}/${var.cidr_vlan_11}"
+      }
+    }
+
+    ip_config {  # vmbr2 (VLAN 10)
+      ipv4 {
+        address = "${var.gateway_vlan_10}/${var.cidr_vlan_10}"
       }
     }
 
@@ -237,9 +298,9 @@ resource "proxmox_virtual_environment_vm" "win_srv_1" {
   }
 
   network_device {
-    bridge  = "vmbr0"
+    bridge  = "vmbr1"
     model   = "virtio"
-    vlan_id = tonumber(var.vlan_tag)
+    vlan_id = tonumber(var.tag_vlan_11)
   }
 
   initialization {
@@ -294,9 +355,9 @@ resource "proxmox_virtual_environment_vm" "bv_srv_1" {
   }
 
   network_device {
-    bridge  = "vmbr0"
+    bridge  = "vmbr1"
     model   = "virtio"
-    vlan_id = tonumber(var.vlan_tag)
+    vlan_id = tonumber(var.tag_vlan_11)
   }
 
   initialization {
