@@ -10,7 +10,6 @@
   ansible.builtin.apt:
     name:
       - ufw
-      - iptables-persistent
       - strongswan
       - strongswan-pki
     state: present
