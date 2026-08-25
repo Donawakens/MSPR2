@@ -5,3 +5,9 @@
 
   roles:
     - firewall
+
+- name: Déploiement du serveur Nextcloud
+  hosts: nextcloud
+  become: yes
+  roles:
+    - nextcloud
