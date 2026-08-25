@@ -52,9 +52,9 @@ resource "proxmox_virtual_environment_vm" "nextcloud" {
 
 
   network_device {
-    bridge  = "vmbr0"
+    bridge  = "vmbr1"
     model   = "virtio"
-    vlan_id = tonumber(var.vlan_tag)
+    vlan_id = tonumber(var.tag_vlan_21)
   }
 
 
@@ -84,8 +84,66 @@ resource "proxmox_virtual_environment_vm" "admin" {
   name      = "ADMIN-SRV-2"
   node_name = var.pm_node
 
+  agent {
+    enabled = false
+  }
+
   clone {
     vm_id = var.base_cloud_image_id
+  }
+
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 20
+  }
+
+
+  network_device {
+    bridge  = "vmbr1"
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_21)
+  }
+
+
+  initialization {
+
+    ip_config {
+      ipv4 {
+        address = "${var.admin_ip}/${var.cidr_vlan_21}"
+        gateway = var.gateway_vlan_21
+      }
+    }
+
+
+    user_data_file_id = "local:snippets/init.yml"
+
+  }
+}
+
+####################################
+# VM FIREWALL
+####################################
+
+resource "proxmox_virtual_environment_vm" "firewall" {
+
+  name      = "FW-MCO-1"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.base_cloud_image_id
+  }
+  
+  agent {
+    enabled = false
   }
 
   cpu {
@@ -105,30 +163,39 @@ resource "proxmox_virtual_environment_vm" "admin" {
   network_device {
     bridge  = "vmbr0"
     model   = "virtio"
-    vlan_id = tonumber(var.vlan_tag)
   }
 
-  network_device {  # Pour réseau en 172
-    bridge  = "vmbr0"
+  network_device { 
+    bridge  = "vmbr1"
     model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_21)
   }
 
+  network_device { 
+    bridge  = "vmbr2"
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_20)
+  }
 
 
   initialization {
 
     ip_config {
-      ipv4 {
-        address = "${var.admin_ip}/${var.cidr_vlan_21}"
-        # vlan_id = tonumber(var.vlan_tag)  ?
-        # gateway = var.gateway_vlan_21 --> Le temps d'avoir déployé avec Ansible ou d'avoir un firewall
+      ipv4 { # vmbr0
+        address = "${var.firewall_wan_ip}/${var.cidr_wan_gateway}"
+        gateway = var.gateway_wan_ip
       }
     }
 
-    ip_config {  # Pour admin en 172
+    ip_config {  # vmbr1 (VLAN 21)
       ipv4 {
-        address = "172.16.158.21/16"
-        gateway = "172.16.255.254"
+        address = "${var.gateway_vlan_21}/${var.cidr_vlan_21}"
+      }
+    }
+
+    ip_config {  # vmbr2 (VLAN 20)
+      ipv4 {
+        address = "${var.gateway_vlan_20}/${var.cidr_vlan_20}"
       }
     }
 
