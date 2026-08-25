@@ -36,6 +36,30 @@
     - '500'
     - '4500'
 
+- name: Identifier l'interface WAN par défaut
+  ansible.builtin.command: ip -4 route show default
+  register: default_route
+  changed_when: false
+
+- name: Définir le nom de l'interface WAN
+  ansible.builtin.set_fact:
+    wan_interface: "{{ default_route.stdout.split()[4] }}"
+
+- name: Configurer le NAT (Masquerade) dans /etc/ufw/before.rules
+  ansible.builtin.blockinfile:
+    path: /etc/ufw/before.rules
+    insertbefore: BOF
+    block: |
+      *nat
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING -s 192.168.11.0/24 -o {{ wan_interface }} -j MASQUERADE
+      -A POSTROUTING -s 192.168.10.0/24 -o {{ wan_interface }} -j MASQUERADE
+      COMMIT
+
+- name: Recharger UFW pour appliquer le NAT
+  community.general.ufw:
+    state: reloaded
+
 - name: Activer le Pare-feu UFW
   community.general.ufw:
     state: enabled
