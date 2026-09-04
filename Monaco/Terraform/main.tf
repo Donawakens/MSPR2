@@ -113,6 +113,11 @@ resource "proxmox_virtual_environment_vm" "admin" {
     vlan_id = tonumber(var.tag_vlan_21)
   }
 
+  network_device { # Acces admin
+    bridge  = "vmbr0"
+    model   = "virtio"
+  }
+
 
   initialization {
 
@@ -123,6 +128,12 @@ resource "proxmox_virtual_environment_vm" "admin" {
       }
     }
 
+    ip_config { # Nécessaire pour l'install de git, l'accès au repo git, etc.
+      ipv4 {
+        address = "172.16.158.11/16"
+        gateway = "172.16.255.254"
+      }
+    }
 
     user_data_file_id = "local:snippets/init.yml"
 
