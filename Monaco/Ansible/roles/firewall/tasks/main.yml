@@ -52,8 +52,8 @@
     block: |
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s 192.168.41.0/24 -o {{ wan_interface }} -j MASQUERADE
-      -A POSTROUTING -s 192.168.40.0/24 -o {{ wan_interface }} -j MASQUERADE
+      -A POSTROUTING -s 192.168.21.0/24 -o {{ wan_interface }} -j MASQUERADE
+      -A POSTROUTING -s 192.168.20.0/24 -o {{ wan_interface }} -j MASQUERADE
       COMMIT
 
 - name: Recharger UFW pour appliquer le NAT
