@@ -262,7 +262,7 @@ resource "proxmox_virtual_environment_vm" "admin" {
 
     ip_config { # Nécessaire pour l'install de git, l'accès au repo git, etc.
       ipv4 {
-        address = "172.16.158.56/16"
+        address = "172.16.158.10/16"
         gateway = "172.16.255.254"
       }
     }
