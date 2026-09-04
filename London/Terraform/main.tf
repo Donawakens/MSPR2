@@ -16,10 +16,10 @@ provider "proxmox" {
 }
 
 ####################################
-# VM Nextcloud - FILE-SRV-1
+# VM Nextcloud - FILE-SRV-1 (London)
 ####################################
 
-resource "proxmox_virtual_environment_vm" "nextcloud" {
+resource "proxmox_virtual_environment_vm" "nextcloud_ldn" {
 
   name      = "FILE-SRV-1"
   node_name = var.pm_node
@@ -64,6 +64,65 @@ resource "proxmox_virtual_environment_vm" "nextcloud" {
       ipv4 {
         address = "${var.nextcloud_ip}/${var.cidr_vlan_11}"
         gateway = var.gateway_vlan_11
+      }
+    }
+
+    user_data_file_id = "local:snippets/init.yml"
+
+  }
+
+}
+
+
+####################################
+# VM Nextcloud - FILE-SRV-3 (Datacenter)
+####################################
+
+resource "proxmox_virtual_environment_vm" "nextcloud_dc" {
+
+  name      = "FILE-SRV-3"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.base_cloud_image_id
+  }
+
+  description = "Serveur de stockage et collaboration Nextcloud"
+
+  agent {
+    enabled = false
+  }
+
+  cpu {
+    cores = 2
+    type  = "host"
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 40
+  }
+
+
+  network_device {
+    bridge  = "vmbr50"
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_50)
+  }
+
+
+  initialization {
+
+    ip_config {
+      ipv4 {
+        address = "${var.nextcloud_datacenter_ip}/${var.cidr_vlan_50}"
+        gateway = var.gateway_vlan_50
       }
     }
 
@@ -167,12 +226,18 @@ resource "proxmox_virtual_environment_vm" "admin" {
   }
 
   network_device {
-    bridge  = "vmbr1"
+    bridge  = "vmbr1" # London
     model   = "virtio"
     vlan_id = tonumber(var.tag_vlan_11)
   }
 
   network_device {
+    bridge  = "vmbr50" # Datacenter
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_50)
+  }
+
+  network_device { # Acces admin
     bridge  = "vmbr0"
     model   = "virtio"
   }
@@ -185,6 +250,13 @@ resource "proxmox_virtual_environment_vm" "admin" {
       ipv4 {
         address = "${var.admin_ip}/${var.cidr_vlan_11}"
         gateway = var.gateway_vlan_11
+      }
+    }
+
+    ip_config {
+      ipv4 {
+        address = "${var.admin_datacenter_ip}/${var.cidr_vlan_50}"
+        gateway = var.gateway_vlan_50
       }
     }
 
@@ -204,10 +276,10 @@ resource "proxmox_virtual_environment_vm" "admin" {
 
 
 ####################################
-# VM FIREWALL
+# VM FIREWALL (LONDON)
 ####################################
 
-resource "proxmox_virtual_environment_vm" "firewall" {
+resource "proxmox_virtual_environment_vm" "firewall-ldn" {
 
   name      = "FW-LDN-1"
   node_name = var.pm_node
@@ -266,6 +338,66 @@ resource "proxmox_virtual_environment_vm" "firewall" {
     ip_config {  # vmbr2 (VLAN 10)
       ipv4 {
         address = "${var.gateway_vlan_10}/${var.cidr_vlan_10}"
+      }
+    }
+
+    user_data_file_id = "local:snippets/init.yml"
+
+  }
+}
+
+
+####################################
+# VM FIREWALL (DATACENTER)
+####################################
+
+resource "proxmox_virtual_environment_vm" "firewall-dc" {
+
+  name      = "FW-DC-1"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.base_cloud_image_id
+  }
+
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 20
+  }
+
+  network_device {
+    bridge  = "vmbr0"
+    model   = "virtio"
+  }
+
+  network_device { 
+    bridge  = "vmbr50"
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_50)
+  }
+
+
+  initialization {
+
+    ip_config {
+      ipv4 { # vmbr0
+        address = "${var.firewall_datacenter_wan_ip}/${var.cidr_datacenter_wan_gateway}"
+        gateway = var.gateway_datacenter_wan_ip
+      }
+    }
+
+    ip_config {  # vmbr50 (VLAN 50)
+      ipv4 {
+        address = "${var.gateway_vlan_50}/${var.cidr_vlan_50}"
       }
     }
 

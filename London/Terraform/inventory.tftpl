@@ -7,12 +7,14 @@ ADMIN-SRV-1 ansible_host=${admin_ip}
 
 [nextcloud]
 FILE-SRV-1 ansible_host=${nextcloud_ip}
+FILE-SRV-3 ansible_host=${nextcloud_datacenter_ip}
 
 [supervision]
 SUP-SRV-1 ansible_host=${supervision_ip}
 
 [firewall]
 FW-LDN-1 ansible_host=${firewall_wan_ip}
+FW-DC-1 ansible_host=${firewall_datacenter_wan_ip}
 
 [firewall:vars]
 firewall_vlan10_ip=${firewall_vlan10_ip}

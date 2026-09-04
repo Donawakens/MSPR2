@@ -70,7 +70,25 @@ variable "cidr_vlan_10" {
 }
 
 
-########### IP FIREWALL WAN ###########
+########### RÉSEAU VLAN 50 ###########
+
+variable "gateway_vlan_50" {
+  type    = string
+  default = "192.168.50.1"
+}
+
+variable "tag_vlan_50" {
+  type    = number
+  default = 50
+}
+
+variable "cidr_vlan_50" {
+  type    = number
+  default = 24
+}
+
+
+########### IP FIREWALL LONDON WAN ###########
 
 variable "firewall_wan_ip" {
   type    = string
@@ -88,6 +106,28 @@ variable "cidr_wan_gateway" {
 }
 
 # Reste des IP via les gateway
+
+
+########### IP FIREWALL DATACENTER WAN ###########
+
+variable "firewall_datacenter_wan_ip" {
+  type    = string
+  default = "172.16.158.9"
+}
+
+variable "gateway_datacenter_wan_ip" {
+  type    = string
+  default = "172.16.255.254"
+}
+
+variable "cidr_datacenter_wan_gateway" {
+  type    = number
+  default = 16
+}
+
+# Reste des IP via les gateway
+
+
 
 ########### IP MACHINES RÉSEAU VLAN 11 ###########
 
@@ -114,4 +154,17 @@ variable "active_directory_ip" {
 variable "bureau_virtuel_ip" {
   type    = string
   default = "192.168.11.5"
+}
+
+
+########### IP MACHINES RÉSEAU VLAN 50 ###########
+
+variable "nextcloud_datacenter_ip" {
+  type    = string
+  default = "192.168.50.2"
+}
+
+variable "admin_datacenter_ip" {
+  type    = string
+  default = "192.168.50.10"
 }
