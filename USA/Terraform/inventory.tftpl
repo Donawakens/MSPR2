@@ -1,0 +1,28 @@
+[all:vars]
+ansible_user=ansible
+ansible_ssh_private_key_file=~/MSPR2/Common/ansible_key
+ansible_ssh_extra_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+
+[admin]
+ADMIN-SRV-3 ansible_host=${admin_ip}
+
+[firewall]
+FW-USA-1 ansible_host=${firewall_wan_ip}
+
+[firewall:vars]
+firewall_vlan40_ip=${firewall_vlan40_ip}
+firewall_vlan41_ip=${firewall_vlan41_ip}
+
+[linux:children]
+admin
+firewall
+
+[windows]
+WIN-SRV-2 ansible_host=${active_directory_ip}
+
+[windows:vars]
+ansible_user=ansible
+ansible_password=Adminadmin1234
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore
+ansible_winrm_transport=ntlm
