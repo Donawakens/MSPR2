@@ -1,0 +1,7 @@
+---
+- name: Déploiement du Pare-feu et préparation VPN / VLANs
+  hosts: firewall
+  become: yes
+
+  roles:
+    - firewall

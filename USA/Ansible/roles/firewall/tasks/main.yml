@@ -1,0 +1,66 @@
+---
+- name: Activer le routage IP (Mode Routeur)
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Installer UFW et outils VPN / Sécurité
+  ansible.builtin.apt:
+    name:
+      - ufw
+      - strongswan
+      - strongswan-pki
+    state: present
+    update_cache: yes
+
+- name: Autoriser le Forwarding dans UFW
+  ansible.builtin.lineinfile:
+    path: /etc/default/ufw
+    regexp: '^DEFAULT_FORWARD_POLICY='
+    line: 'DEFAULT_FORWARD_POLICY="ACCEPT"'
+
+- name: Configurer UFW - Autoriser SSH
+  community.general.ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+
+- name: Configurer UFW - Autoriser les flux VPN IPsec (UDP 500 & 4500)
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: udp
+  loop:
+    - '500'
+    - '4500'
+
+- name: Identifier l'interface WAN par défaut
+  ansible.builtin.command: ip -4 route show default
+  register: default_route
+  changed_when: false
+
+- name: Définir le nom de l'interface WAN
+  ansible.builtin.set_fact:
+    wan_interface: "{{ default_route.stdout.split()[4] }}"
+
+- name: Configurer le NAT (Masquerade) dans /etc/ufw/before.rules
+  ansible.builtin.blockinfile:
+    path: /etc/ufw/before.rules
+    insertbefore: BOF
+    block: |
+      *nat
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING -s 192.168.41.0/24 -o {{ wan_interface }} -j MASQUERADE
+      -A POSTROUTING -s 192.168.40.0/24 -o {{ wan_interface }} -j MASQUERADE
+      COMMIT
+
+- name: Recharger UFW pour appliquer le NAT
+  community.general.ufw:
+    state: reloaded
+
+- name: Activer le Pare-feu UFW
+  community.general.ufw:
+    state: enabled
+    policy: deny
