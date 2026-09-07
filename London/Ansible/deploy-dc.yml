@@ -1,5 +1,5 @@
 ---
-- name: Déploiement du Pare-feu et préparation VPN / VLANs (Londres)
+- name: Déploiement du Pare-feu et préparation VPN / VLANs (Datacenter)
   hosts: firewall
   become: yes
 
