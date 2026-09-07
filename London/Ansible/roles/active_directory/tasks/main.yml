@@ -1,0 +1,16 @@
+---
+- name: Copier le script PowerShell sur la machine cible
+  ansible.windows.win_copy:
+    src: "{{ item }}"
+    dest: "C:\\Windows\\Temp\\{{ item }}"
+  loop:
+    - deploy_primary_dc.ps1
+
+- name: [Londres] Déployer le contrôleur de domaine principal (PDC)
+  ansible.windows.win_powershell:
+    script: |
+      C:\Windows\Temp\deploy_primary_dc.ps1 `
+        -DomainName "{{ ad_domain_name }}" `
+        -NetbiosName "{{ ad_netbios_name }}" `
+        -DsrmPassword "{{ ad_dsrm_password }}"
+  when: inventory_hostname == "WIN-SRV-1"

@@ -6,6 +6,15 @@
   roles:
     - firewall_london
 
+- name: Déploiement de l'Active Directory Principal (Londres)
+  hosts: WIN-SRV-1
+  vars:
+    ad_domain_name: "atp.local"
+    ad_netbios_name: "ATP"
+    ad_dsrm_password: "Adminpassword1234!"
+  roles:
+    - active_directory
+
 - name: Déploiement du serveur Nextcloud
   hosts: nextcloud
   become: yes
