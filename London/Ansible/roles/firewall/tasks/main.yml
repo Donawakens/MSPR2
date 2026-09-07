@@ -6,13 +6,13 @@
     state: present
     reload: yes
 
-- name: Installer UFW et StrongSwan
+- name: Installer UFW et StrongSwan (avec binaire charon)
   ansible.builtin.apt:
     name:
       - ufw
-      - strongswan
       - strongswan-starter
-      - charon-systemd
+      - strongswan-charon
+      - libcharon-extra-plugins
     state: present
     update_cache: yes
 
@@ -124,7 +124,7 @@
     state: restarted
     enabled: yes
 
-- name: S'assurer que le service StrongSwan est actif
+- name: Activer et redémarrer le service StrongSwan
   ansible.builtin.systemd:
     name: strongswan-starter
     state: restarted
