@@ -1,0 +1,18 @@
+---
+- name: Copier le script PowerShell sur la machine cible
+  ansible.windows.win_copy:
+    src: "{{ item }}"
+    dest: "C:\\Windows\\Temp\\{{ item }}"
+  loop:
+    - deploy_secondary_dc.ps1
+
+- name: [USA] Déployer le contrôleur de domaine secondaire (BDC)
+  ansible.windows.win_powershell:
+    script: |
+      C:\Windows\Temp\deploy_secondary_dc.ps1 `
+        -DomainName "{{ ad_domain_name }}" `
+        -PrimaryDcIp "{{ hostvars['WIN-SRV-1']['ansible_host'] }}" `
+        -DomainAdminUser "{{ ad_admin_user }}" `
+        -DomainAdminPassword "{{ ad_admin_password }}" `
+        -DsrmPassword "{{ ad_dsrm_password }}"
+  when: inventory_hostname == "WIN-SRV-2"

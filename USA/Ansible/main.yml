@@ -5,3 +5,13 @@
 
   roles:
     - firewall
+
+- name: Déploiement du Contrôleur de Domaine Secondaire (USA)
+  hosts: WIN-SRV-2
+  vars:
+    ad_domain_name: "atp.local"
+    ad_admin_user: "Administrator"
+    ad_admin_password: "Adminadmin1234"  # Mot de passe du compte Admin créé lors du PDC
+    ad_dsrm_password: "Adminpassword1234!"
+  roles:
+    - active_directory
