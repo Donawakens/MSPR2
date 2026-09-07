@@ -1,0 +1,13 @@
+---
+- name: Déploiement du Pare-feu et préparation VPN / VLANs (Londres)
+  hosts: firewall
+  become: yes
+
+  roles:
+    - firewall_dc
+
+- name: Déploiement du serveur Nextcloud
+  hosts: nextcloud
+  become: yes
+  roles:
+    - nextcloud
