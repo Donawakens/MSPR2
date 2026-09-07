@@ -1,0 +1,37 @@
+#Ajouter dans hosts.ini :
+#[windows:vars]
+#ansible_user=ansible
+#ansible_password=Adminadmin1234
+#ansible_connection=winrm
+#ansible_port=5986
+#ansible_winrm_scheme=https
+#ansible_winrm_server_cert_validation=ignore
+#ansible_winrm_transport=basic
+
+
+# 1. Créer un certificat auto-signé pour WinRM HTTPS
+$Cert = New-SelfSignedCertificate -CertStoreLocation Cert:\LocalMachine\My -DnsName "WIN-SRV-1"
+
+# 2. Supprimer l'ancien listener HTTPS s'il existe et créer le nouveau
+Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse -ErrorAction SilentlyContinue
+winrm create winrm/config/listener?Address=*+Transport=HTTPS "@`{Hostname=`"WIN-SRV-1`";CertificateThumbprint=`"$($Cert.Thumbprint)`"`}"
+
+# 3. Ouvrir le port 5986 dans le Firewall Windows
+New-NetFirewallRule -Name "Ansible-WinRM-HTTPS-5986" -DisplayName "Ansible WinRM HTTPS" -Enabled True -Direction Inbound -Protocol TCP -LocalPort 5986 -Action Allow -ErrorAction SilentlyContinue
+
+# 4. Redémarrer le service WinRM
+Restart-Service WinRM
+
+
+winrm set winrm/config/service/auth '@{Basic="true"}'
+winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+
+# Vérifier / Créer l'utilisateur local ansible avec le bon mot de passe
+$Password = ConvertTo-SecureString "Adminadmin1234" -AsPlainText -Force
+New-LocalUser -Name "ansible" -Password $Password -AccountNeverExpires -ErrorAction SilentlyContinue
+Set-LocalUser -Name "ansible" -Password $Password
+
+# S'assurer qu'il appartient au groupe Administrateurs
+Add-LocalGroupMember -Group "Administrateurs" -Member "ansible" -ErrorAction SilentlyContinue
+# Version anglophone si OS en anglais :
+Add-LocalGroupMember -Group "Administrators" -Member "ansible" -ErrorAction SilentlyContinue
