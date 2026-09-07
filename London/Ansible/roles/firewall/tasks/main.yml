@@ -6,12 +6,13 @@
     state: present
     reload: yes
 
-- name: Installer UFW et StrongSwan (avec starter legacy ipsec.conf)
+- name: Installer UFW et StrongSwan
   ansible.builtin.apt:
     name:
       - ufw
       - strongswan
       - strongswan-starter
+      - charon-systemd
     state: present
     update_cache: yes
 
@@ -117,9 +118,9 @@
           right=172.16.158.9
           rightsubnet=192.168.50.0/24
 
-- name: Redémarrer StrongSwan et Recharger UFW
+- name: Redémarrer le service IPsec (StrongSwan)
   ansible.builtin.systemd:
-    name: strongswan
+    name: ipsec
     state: restarted
     enabled: yes
 
@@ -128,7 +129,7 @@
     name: strongswan-starter
     state: restarted
     enabled: yes
-    
+
 - name: Recharger UFW
   community.general.ufw:
     state: reloaded
