@@ -118,7 +118,7 @@
 
 - name: Redémarrer StrongSwan et Recharger UFW
   ansible.builtin.systemd:
-    name: strongswan-starter
+    name: strongswan
     state: restarted
     enabled: yes
 
