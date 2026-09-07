@@ -6,16 +6,30 @@ ansible_ssh_extra_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/n
 [admin]
 ADMIN-SRV-1 ansible_host=${admin_ip}
 
-[nextcloud]
+# --- Groupes Nextcloud ---
+[nextcloud_london]
 FILE-SRV-1 ansible_host=${nextcloud_ip}
+
+[nextcloud_dc]
 FILE-SRV-3 ansible_host=${nextcloud_datacenter_ip}
+
+[nextcloud:children]
+nextcloud_london
+nextcloud_dc
 
 [supervision]
 SUP-SRV-1 ansible_host=${supervision_ip}
 
-[firewall]
+# --- Groupes Firewall ---
+[firewall_london]
 FW-LDN-1 ansible_host=${firewall_wan_ip}
+
+[firewall_dc]
 FW-DC-1 ansible_host=${firewall_datacenter_wan_ip}
+
+[firewall:children]
+firewall_london
+firewall_dc
 
 [firewall:vars]
 firewall_vlan10_ip=${firewall_vlan10_ip}
