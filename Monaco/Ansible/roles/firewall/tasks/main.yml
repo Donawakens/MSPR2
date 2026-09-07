@@ -11,6 +11,8 @@
     name:
       - ufw
       - strongswan
+      - strongswan-starter
+      - charon-systemd
     state: present
     update_cache: yes
 
@@ -86,9 +88,15 @@
           right=172.16.158.3
           rightsubnet=192.168.10.0/24,192.168.11.0/24,192.168.40.0/24,192.168.41.0/24,192.168.50.0/24
 
-- name: Redémarrer StrongSwan et Recharger UFW
+- name: Redémarrer le service IPsec (StrongSwan)
   ansible.builtin.systemd:
-    name: strongswan
+    name: ipsec
+    state: restarted
+    enabled: yes
+
+- name: S'assurer que le service StrongSwan est actif
+  ansible.builtin.systemd:
+    name: strongswan-starter
     state: restarted
     enabled: yes
 
