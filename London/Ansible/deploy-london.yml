@@ -1,6 +1,6 @@
 ---
 - name: Déploiement du Pare-feu et préparation VPN / VLANs (Londres)
-  hosts: firewall
+  hosts: firewall_london
   become: yes
 
   roles:

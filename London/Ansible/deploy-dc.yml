@@ -1,6 +1,6 @@
 ---
 - name: Déploiement du Pare-feu et préparation VPN / VLANs (Datacenter)
-  hosts: firewall
+  hosts: firewall_dc
   become: yes
 
   roles:
