@@ -6,35 +6,37 @@
     state: present
     reload: yes
 
-- name: Installer UFW et outils VPN / Sécurité
+- name: Installer UFW et la suite StrongSwan complète
   ansible.builtin.apt:
     name:
       - ufw
-      - strongswan
-      - strongswan-pki
+      - strongswan-starter
+      - strongswan-charon
+      - libcharon-extra-plugins
     state: present
     update_cache: yes
 
-- name: Autoriser le Forwarding dans UFW
+- name: Activer le Forwarding dans UFW
   ansible.builtin.lineinfile:
     path: /etc/default/ufw
     regexp: '^DEFAULT_FORWARD_POLICY='
     line: 'DEFAULT_FORWARD_POLICY="ACCEPT"'
 
-- name: Configurer UFW - Autoriser SSH
+- name: Activer UFW avec politique Deny
   community.general.ufw:
-    rule: allow
-    port: '22'
-    proto: tcp
+    state: enabled
+    policy: deny
 
-- name: Configurer UFW - Autoriser les flux VPN IPsec (UDP 500 & 4500)
+- name: Autoriser SSH, IKE, NAT-T et ESP dans UFW
   community.general.ufw:
     rule: allow
-    port: "{{ item }}"
-    proto: udp
+    port: "{{ item.port | default(omit) }}"
+    proto: "{{ item.proto }}"
   loop:
-    - '500'
-    - '4500'
+    - { port: '22', proto: 'tcp' }
+    - { port: '500', proto: 'udp' }
+    - { port: '4500', proto: 'udp' }
+    - { proto: 'esp' }
 
 - name: Identifier l'interface WAN par défaut
   ansible.builtin.command: ip -4 route show default
@@ -45,22 +47,55 @@
   ansible.builtin.set_fact:
     wan_interface: "{{ default_route.stdout.split()[4] }}"
 
-- name: Configurer le NAT (Masquerade) dans /etc/ufw/before.rules
+- name: Configurer le NAT dans /etc/ufw/before.rules (avec exclusion VPN)
   ansible.builtin.blockinfile:
     path: /etc/ufw/before.rules
     insertbefore: BOF
     block: |
       *nat
       :POSTROUTING ACCEPT [0:0]
-      -A POSTROUTING -s 192.168.41.0/24 -o {{ wan_interface }} -j MASQUERADE
+      # Exclure du NAT le trafic inter-sites VPN (192.168.0.0/16)
+      -A POSTROUTING -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT
+      # Masquerade Internet pour le LAN du site USA
       -A POSTROUTING -s 192.168.40.0/24 -o {{ wan_interface }} -j MASQUERADE
+      -A POSTROUTING -s 192.168.41.0/24 -o {{ wan_interface }} -j MASQUERADE
       COMMIT
 
-- name: Recharger UFW pour appliquer le NAT
+- name: Configurer la clé PSK IPsec
+  ansible.builtin.copy:
+    dest: /etc/ipsec.secrets
+    owner: root
+    group: root
+    mode: '0600'
+    content: |
+      172.16.158.8 172.16.158.3 : PSK "SecretVPN123!"
+
+- name: Configurer le tunnel IPsec vers Londres
+  ansible.builtin.copy:
+    dest: /etc/ipsec.conf
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      config setup
+          charondebug="ike 1, knl 1, cfg 1"
+
+      conn usa-to-ldn
+          keyexchange=ikev2
+          authby=secret
+          type=tunnel
+          auto=start
+          left=172.16.158.8
+          leftsubnet=192.168.40.0/24,192.168.41.0/24
+          right=172.16.158.3
+          rightsubnet=192.168.10.0/24,192.168.11.0/24,192.168.20.0/24,192.168.21.0/24,192.168.50.0/24
+
+- name: Démarrer et activer le service StrongSwan
+  ansible.builtin.systemd:
+    name: strongswan-starter
+    state: restarted
+    enabled: yes
+
+- name: Recharger UFW pour appliquer le NAT et les règles
   community.general.ufw:
     state: reloaded
-
-- name: Activer le Pare-feu UFW
-  community.general.ufw:
-    state: enabled
-    policy: deny
