@@ -56,9 +56,8 @@
       :POSTROUTING ACCEPT [0:0]
       # Exclure du NAT le trafic inter-sites VPN (192.168.0.0/16)
       -A POSTROUTING -s 192.168.0.0/16 -d 192.168.0.0/16 -j ACCEPT
-      # Masquerade Internet pour le LAN du site USA
-      -A POSTROUTING -s 192.168.40.0/24 -o {{ wan_interface }} -j MASQUERADE
-      -A POSTROUTING -s 192.168.41.0/24 -o {{ wan_interface }} -j MASQUERADE
+      # Masquerade Internet pour le LAN du Datacenter (VLAN 30)
+      -A POSTROUTING -s 192.168.30.0/24 -o {{ wan_interface }} -j MASQUERADE
       COMMIT
 
 - name: Configurer la clé PSK IPsec
@@ -68,7 +67,7 @@
     group: root
     mode: '0600'
     content: |
-      172.16.158.8 172.16.158.3 : PSK "SecretVPN123!"
+      172.16.158.9 172.16.158.3 : PSK "SecretVPN123!"
 
 - name: Configurer le tunnel IPsec vers Londres
   ansible.builtin.copy:
@@ -80,15 +79,15 @@
       config setup
           charondebug="ike 1, knl 1, cfg 1"
 
-      conn usa-to-ldn
+      conn dc-to-ldn
           keyexchange=ikev2
           authby=secret
           type=tunnel
           auto=start
-          left=172.16.158.8
-          leftsubnet=192.168.40.0/24,192.168.41.0/24
+          left=172.16.158.6
+          leftsubnet=192.168.30.0/24
           right=172.16.158.3
-          rightsubnet=192.168.10.0/24,192.168.11.0/24,192.168.20.0/24,192.168.21.0/24,192.168.30.0/24,192.168.50.0/24
+          rightsubnet=192.168.10.0/24,192.168.11.0/24,192.168.20.0/24,192.168.21.0/24,192.168.40.0/24,192.168.41.0/24,192.168.50.0/24
 
 - name: Démarrer et activer le service StrongSwan
   ansible.builtin.systemd:
