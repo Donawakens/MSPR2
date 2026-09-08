@@ -56,6 +56,10 @@
   ansible.builtin.set_fact:
     wan_interface: "{{ default_route.stdout.split()[4] }}"
 
+- name: Définir l'interface LAN VLAN 11
+  ansible.builtin.set_fact:
+    vlan_11_interface: "eth1"
+
 - name: Configurer le NAT dans /etc/ufw/before.rules (avec exclusion VPN)
   ansible.builtin.blockinfile:
     path: /etc/ufw/before.rules
@@ -68,6 +72,7 @@
       # NAT Internet pour le LAN Londres
       -A POSTROUTING -s 192.168.10.0/24 -o {{ wan_interface }} -j MASQUERADE
       -A POSTROUTING -s 192.168.11.0/24 -o {{ wan_interface }} -j MASQUERADE
+      -A POSTROUTING -s 172.16.160.3/16 -o {{ vlan_11_interface }} -j MASQUERADE
       COMMIT
 
 - name: Configurer les clés PSK IPsec
