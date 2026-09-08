@@ -6,7 +6,7 @@
   loop:
     - deploy_secondary_dc.ps1
 
-- name: [USA] Déployer le contrôleur de domaine secondaire (BDC)
+- name: Déployer le contrôleur de domaine secondaire (BDC USA)
   ansible.windows.win_powershell:
     script: |
       C:\Windows\Temp\deploy_secondary_dc.ps1 `
