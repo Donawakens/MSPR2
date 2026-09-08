@@ -6,7 +6,7 @@
   loop:
     - deploy_primary_dc.ps1
 
-- name: [Londres] Déployer le contrôleur de domaine principal (PDC)
+- name: Déployer le contrôleur de domaine principal (PDC Londres)
   ansible.windows.win_powershell:
     script: |
       C:\Windows\Temp\deploy_primary_dc.ps1 `
