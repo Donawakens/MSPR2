@@ -232,6 +232,12 @@ resource "proxmox_virtual_environment_vm" "admin" {
   }
 
   network_device {
+    bridge  = "vmbr30" # Australie
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_30)
+  }
+
+  network_device {
     bridge  = "vmbr50" # Datacenter
     model   = "virtio"
     vlan_id = tonumber(var.tag_vlan_50)
@@ -250,6 +256,13 @@ resource "proxmox_virtual_environment_vm" "admin" {
       ipv4 {
         address = "${var.admin_ip}/${var.cidr_vlan_11}"
         gateway = var.gateway_vlan_11
+      }
+    }
+
+    ip_config {
+      ipv4 {
+        address = "${var.admin_australie_ip}/${var.cidr_vlan_30}"
+        gateway = var.gateway_vlan_30
       }
     }
 
@@ -405,6 +418,67 @@ resource "proxmox_virtual_environment_vm" "firewall-dc" {
 
   }
 }
+
+
+####################################
+# VM FIREWALL (AUSTRALIE)
+####################################
+
+resource "proxmox_virtual_environment_vm" "firewall-aus" {
+
+  name      = "FW-AUST-1"
+  node_name = var.pm_node
+
+  clone {
+    vm_id = var.base_cloud_image_id
+  }
+
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 2048
+  }
+
+  disk {
+    datastore_id = var.pm_storage
+    interface    = "scsi0"
+    size         = 20
+  }
+
+  network_device {
+    bridge  = "vmbr0"
+    model   = "virtio"
+  }
+
+  network_device { 
+    bridge  = "vmbr30"
+    model   = "virtio"
+    vlan_id = tonumber(var.tag_vlan_30)
+  }
+
+
+  initialization {
+
+    ip_config {
+      ipv4 { # vmbr0
+        address = "${var.firewall_australie_wan_ip}/${var.cidr_australie_wan_gateway}"
+        gateway = var.gateway_australie_wan_ip
+      }
+    }
+
+    ip_config {  # vmbr30 (VLAN 30)
+      ipv4 {
+        address = "${var.gateway_vlan_30}/${var.cidr_vlan_30}"
+      }
+    }
+
+    user_data_file_id = "local:snippets/init.yml"
+
+  }
+}
+
 
 
 ####################################

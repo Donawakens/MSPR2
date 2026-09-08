@@ -70,6 +70,23 @@ variable "cidr_vlan_10" {
 }
 
 
+########### RÉSEAU VLAN 30 ###########
+
+variable "gateway_vlan_30" {
+  type    = string
+  default = "192.168.30.1"
+}
+
+variable "tag_vlan_30" {
+  type    = number
+  default = 30
+}
+
+variable "cidr_vlan_30" {
+  type    = number
+  default = 24
+}
+
 ########### RÉSEAU VLAN 50 ###########
 
 variable "gateway_vlan_50" {
@@ -101,6 +118,26 @@ variable "gateway_wan_ip" {
 }
 
 variable "cidr_wan_gateway" {
+  type    = number
+  default = 16
+}
+
+# Reste des IP via les gateway
+
+
+########### IP FIREWALL AUSTRALIE WAN ###########
+
+variable "firewall_australie_wan_ip" {
+  type    = string
+  default = "172.16.158.6"
+}
+
+variable "gateway_australie_wan_ip" {
+  type    = string
+  default = "172.16.255.254"
+}
+
+variable "cidr_australie_wan_gateway" {
   type    = number
   default = 16
 }
@@ -154,6 +191,14 @@ variable "active_directory_ip" {
 variable "bureau_virtuel_ip" {
   type    = string
   default = "192.168.11.5"
+}
+
+
+########### IP MACHINES RÉSEAU VLAN 30 ###########
+
+variable "admin_australie_ip" {
+  type    = string
+  default = "192.168.30.10"
 }
 
 
