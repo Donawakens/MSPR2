@@ -1,5 +1,5 @@
 ---
-- name: Déploiement du Pare-feu et préparation VPN / VLANs (Datacenter)
+- name: Déploiement du Pare-feu et préparation VPN / VLANs (Australie)
   hosts: firewall_aus
   become: yes
 
