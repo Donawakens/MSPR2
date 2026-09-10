@@ -10,7 +10,7 @@
   hosts: WIN-SRV-2
   vars:
     ad_domain_name: "atp.local"
-    ad_admin_user: "Administrator"
+    ad_admin_user: "Administrateur"
     ad_admin_password: "Adminadmin1234"
     ad_dsrm_password: "Adminpassword1234"
   roles:
