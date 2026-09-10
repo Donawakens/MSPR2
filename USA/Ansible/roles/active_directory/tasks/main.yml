@@ -11,7 +11,7 @@
     script: |
       C:\Windows\Temp\deploy_secondary_dc.ps1 `
         -DomainName "{{ ad_domain_name }}" `
-        -PrimaryDcIp "{{ hostvars['WIN-SRV-1']['ansible_host'] }}" `
+        -PrimaryDcIp "{{ hostvars['WIN-SRV-2']['ansible_host'] }}" `
         -DomainAdminUser "{{ ad_admin_user }}" `
         -DomainAdminPassword "{{ ad_admin_password }}" `
         -DsrmPassword "{{ ad_dsrm_password }}"
