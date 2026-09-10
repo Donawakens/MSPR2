@@ -9,7 +9,8 @@ param (
 $ErrorActionPreference = "Stop"
 
 # 1. Configuration du DNS principal vers le contrôleur de Londres
-$NetAdapter = Get-NetAdapter | Where-Status -eq "Up" | Select-Object -First 1
+$NetAdapter = Get-NetAdapter | Where-Object Status -eq "Up" | Select-Object -First 1
+
 Set-DnsClientServerAddress -InterfaceIndex $NetAdapter.ifIndex -ServerAddresses ($PrimaryDcIp, "127.0.0.1")
 
 # 2. Installation du rôle AD DS
