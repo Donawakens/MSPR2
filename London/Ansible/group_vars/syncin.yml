@@ -1,7 +1,5 @@
 ---
 syncin_db_password: "SyncInDBStrongPassword123!"
-syncin_secret_key: "UneCleSecreteTresLongueTresTresLongue"
-syncin_admin_email: "admin@atp.com"
+syncin_admin_user: "admin"
 syncin_admin_password: "AdminPassword123!"
-syncin_london_domain: "192.168.11.3"
-syncin_dc_domain: "192.168.50.2"
+syncin_jwt_secret: "ChaineSecreteAleatoireEtTresLonguePourLeJWT123456"
