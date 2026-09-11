@@ -16,10 +16,10 @@ provider "proxmox" {
 }
 
 ####################################
-# VM Nextcloud - FILE-SRV-1 (London)
+# VM Sync-In - FILE-SRV-1 (London)
 ####################################
 
-resource "proxmox_virtual_environment_vm" "nextcloud_ldn" {
+resource "proxmox_virtual_environment_vm" "syncin_ldn" {
 
   name      = "FILE-SRV-1"
   node_name = var.pm_node
@@ -28,7 +28,7 @@ resource "proxmox_virtual_environment_vm" "nextcloud_ldn" {
     vm_id = var.base_cloud_image_id
   }
 
-  description = "Serveur de stockage et collaboration Nextcloud"
+  description = "Serveur de stockage et collaboration Sync-In"
 
   agent {
     enabled = false
@@ -62,7 +62,7 @@ resource "proxmox_virtual_environment_vm" "nextcloud_ldn" {
 
     ip_config {
       ipv4 {
-        address = "${var.nextcloud_ip}/${var.cidr_vlan_11}"
+        address = "${var.syncin_ip}/${var.cidr_vlan_11}"
         gateway = var.gateway_vlan_11
       }
     }
@@ -75,10 +75,10 @@ resource "proxmox_virtual_environment_vm" "nextcloud_ldn" {
 
 
 ####################################
-# VM Nextcloud - FILE-SRV-3 (Datacenter)
+# VM Sync-In - FILE-SRV-3 (Datacenter)
 ####################################
 
-resource "proxmox_virtual_environment_vm" "nextcloud_dc" {
+resource "proxmox_virtual_environment_vm" "syncin_dc" {
 
   name      = "FILE-SRV-3"
   node_name = var.pm_node
@@ -87,7 +87,7 @@ resource "proxmox_virtual_environment_vm" "nextcloud_dc" {
     vm_id = var.base_cloud_image_id
   }
 
-  description = "Serveur de stockage et collaboration Nextcloud"
+  description = "Serveur de stockage et collaboration Sync-In"
 
   agent {
     enabled = false
@@ -121,7 +121,7 @@ resource "proxmox_virtual_environment_vm" "nextcloud_dc" {
 
     ip_config {
       ipv4 {
-        address = "${var.nextcloud_datacenter_ip}/${var.cidr_vlan_50}"
+        address = "${var.syncin_datacenter_ip}/${var.cidr_vlan_50}"
         gateway = var.gateway_vlan_50
       }
     }

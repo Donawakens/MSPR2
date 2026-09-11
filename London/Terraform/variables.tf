@@ -168,7 +168,7 @@ variable "cidr_datacenter_wan_gateway" {
 
 ########### IP MACHINES RÉSEAU VLAN 11 ###########
 
-variable "nextcloud_ip" {
+variable "syncin_ip" {
   type    = string
   default = "192.168.11.3"
 }
@@ -204,7 +204,7 @@ variable "admin_australie_ip" {
 
 ########### IP MACHINES RÉSEAU VLAN 50 ###########
 
-variable "nextcloud_datacenter_ip" {
+variable "syncin_datacenter_ip" {
   type    = string
   default = "192.168.50.2"
 }

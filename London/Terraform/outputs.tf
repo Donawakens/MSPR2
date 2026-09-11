@@ -4,8 +4,8 @@ resource "local_file" "ansible_inventory" {
 
   content = templatefile("${path.module}/inventory.tftpl", {
     admin_ip        = var.admin_ip
-    nextcloud_ip    = var.nextcloud_ip
-    nextcloud_datacenter_ip    = var.nextcloud_datacenter_ip 
+    syncin_ip    = var.syncin_ip
+    syncin_datacenter_ip    = var.syncin_datacenter_ip 
     supervision_ip  = var.supervision_ip
     active_directory_ip   = var.active_directory_ip
     bureau_virtuel_ip    = var.bureau_virtuel_ip
