@@ -1,9 +1,9 @@
 ---
-- name: Installer les dépendances Docker & outils
+- name: Installer les dépendances Docker
   ansible.builtin.apt:
     name:
       - docker.io
-      - docker-compose
+      - docker-compose-v2
       - curl
     state: present
     update_cache: yes
@@ -14,21 +14,21 @@
     state: started
     enabled: yes
 
-- name: Créer le dossier d'installation Nextcloud
+- name: Créer le dossier d'installation Sync-in
   ansible.builtin.file:
-    path: /opt/nextcloud
+    path: /opt/syncin
     state: directory
     mode: '0755'
 
 - name: Déployer le fichier docker-compose.yml
   ansible.builtin.template:
     src: docker-compose.yml.j2
-    dest: /opt/nextcloud/docker-compose.yml
+    dest: /opt/syncin/docker-compose.yml
     mode: '0640'
 
-- name: Lancer la stack Nextcloud via Docker Compose
+- name: Lancer la stack Sync-in via Docker Compose
   ansible.builtin.command:
     cmd: docker compose up -d
-    chdir: /opt/nextcloud
+    chdir: /opt/syncin
   register: docker_compose_result
   changed_when: "'Creating' in docker_compose_result.stdout or 'Starting' in docker_compose_result.stdout or 'Recreating' in docker_compose_result.stdout"

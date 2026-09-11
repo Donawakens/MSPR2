@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: syncin
+      POSTGRES_USER: syncin
+      POSTGRES_PASSWORD: "{{ syncin_db_password }}"
+    volumes:
+      - syncin_db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - syncin_redis_data:/data
+
+  app:
+    image: ghcr.io/sync-in/server:latest
+    restart: always
+    ports:
+      - "80:3000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: "postgresql://syncin:{{ syncin_db_password }}@db:5432/syncin"
+      REDIS_URL: "redis://redis:6379"
+      SECRET_KEY: "{{ syncin_secret_key }}"
+      APP_URL: "http://{{ syncin_dc_domain }}"
+      ADMIN_EMAIL: "{{ syncin_admin_email }}"
+      ADMIN_PASSWORD: "{{ syncin_admin_password }}"
+    volumes:
+      - syncin_files:/var/lib/syncin/data
+
+volumes:
+  syncin_db_data:
+  syncin_redis_data:
+  syncin_files:

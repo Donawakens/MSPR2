@@ -6,8 +6,8 @@
   roles:
     - firewall_dc
 
-- name: Déploiement du serveur Nextcloud
-  hosts: nextcloud
+- name: Déploiement du serveur Sync-In
+  hosts: syncin_dc
   become: yes
   roles:
-    - nextcloud
+    - syncin_dc

@@ -15,8 +15,8 @@
   roles:
     - active_directory
 
-- name: Déploiement du serveur Nextcloud
-  hosts: nextcloud
+- name: Déploiement du serveur Sync-In
+  hosts: syncin_london
   become: yes
   roles:
-    - nextcloud
+    - syncin_london

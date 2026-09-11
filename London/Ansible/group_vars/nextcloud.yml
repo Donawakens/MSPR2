@@ -1,5 +1,0 @@
----
-nextcloud_db_password: "NextcloudDBStrongPassword123!"
-nextcloud_admin_user: "admin"
-nextcloud_admin_password: "adminadmin"
-nextcloud_trusted_domain: "192.168.11.3"
