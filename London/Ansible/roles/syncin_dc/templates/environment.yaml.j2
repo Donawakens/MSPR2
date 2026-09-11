@@ -11,3 +11,7 @@ auth:
       secret: '{{ syncin_jwt_secret }}_access'
     refresh:
       secret: '{{ syncin_jwt_secret }}_refresh'
+
+applications:
+  files:
+    dataPath: '/app/data'
