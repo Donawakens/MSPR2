@@ -1,5 +1,5 @@
 ---
-- name: Installer les dépendances Docker
+- name: Installer Docker et Docker Compose
   ansible.builtin.apt:
     name:
       - docker.io
@@ -8,7 +8,7 @@
     state: present
     update_cache: yes
 
-- name: S'assurer que le service Docker est démarré et activé
+- name: S'assurer que le service Docker est démarré
   ansible.builtin.systemd:
     name: docker
     state: started
@@ -19,6 +19,12 @@
     path: /opt/syncin
     state: directory
     mode: '0755'
+
+- name: Déployer le fichier environment.yaml
+  ansible.builtin.template:
+    src: environment.yaml.j2
+    dest: /opt/syncin/environment.yaml
+    mode: '0644'
 
 - name: Déployer le fichier docker-compose.yml
   ansible.builtin.template:

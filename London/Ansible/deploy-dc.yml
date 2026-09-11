@@ -8,6 +8,7 @@
 
 - name: Déploiement du serveur Sync-In
   hosts: syncin_dc
+  gather_facts: true
   become: yes
   roles:
     - syncin_dc

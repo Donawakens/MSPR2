@@ -1,0 +1,13 @@
+server:
+  publicUrl: 'http://{{ ansible_default_ipv4.address }}'
+
+mysql:
+  url: 'mysql://root:{{ syncin_db_password }}@mariadb:3306/sync_in'
+
+auth:
+  encryptionKey: '{{ syncin_jwt_secret }}'
+  token:
+    access:
+      secret: '{{ syncin_jwt_secret }}_access'
+    refresh:
+      secret: '{{ syncin_jwt_secret }}_refresh'
