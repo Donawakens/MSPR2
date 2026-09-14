@@ -27,7 +27,7 @@
     state: enabled
     policy: deny
 
-- name: Autoriser SSH / UDP IPsec / ESP
+- name: Autoriser SSH / SNMP / LDAP / UDP IPsec / ESP
   community.general.ufw:
     rule: allow
     port: "{{ item.port | default(omit) }}"

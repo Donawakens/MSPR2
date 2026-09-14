@@ -27,7 +27,7 @@
     state: enabled
     policy: deny
 
-- name: Autoriser SSH, IKE, NAT-T et ESP dans UFW
+- name: Autoriser SSH / SNMP / LDAP / UDP IPsec / ESP
   community.general.ufw:
     rule: allow
     port: "{{ item.port | default(omit) }}"
@@ -40,6 +40,7 @@
     - { port: '500', proto: 'udp' }
     - { port: '4500', proto: 'udp' }
     - { proto: 'esp' }
+
 
 - name: Identifier l'interface WAN par défaut
   ansible.builtin.command: ip -4 route show default
