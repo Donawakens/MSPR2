@@ -34,6 +34,9 @@
     proto: "{{ item.proto }}"
   loop:
     - { port: '22', proto: 'tcp' }
+    - { port: '161', proto: 'udp' }
+    - { port: '162', proto: 'udp' }
+    - { port: '389', proto: 'tcp' }
     - { port: '500', proto: 'udp' }
     - { port: '4500', proto: 'udp' }
     - { proto: 'esp' }
