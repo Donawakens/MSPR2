@@ -142,7 +142,7 @@
     name: strongswan-starter
     state: restarted
     enabled: yes
-    
+
 - name: Recharger UFW
   community.general.ufw:
     state: reloaded
@@ -163,7 +163,7 @@
   ansible.builtin.command:
     cmd: >
       tailscale up
-      --auth-key={{ tailscale_auth_key }}
+      --auth-key="tskey-auth-kmeASg3EZX11CNTRL-VT1AbZsm9u7A75CAGKwwt7Vw4pK2cfkH"
       --advertise-routes=192.168.11.0/24
   when: tailscale_status.rc != 0
   no_log: true
