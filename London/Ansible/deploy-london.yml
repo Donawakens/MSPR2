@@ -21,3 +21,10 @@
   become: yes
   roles:
     - syncin_london
+
+- name: Déploiement de SNMP
+  hosts: linux
+  gather_facts: true
+  become: yes
+  roles:
+    - snmp

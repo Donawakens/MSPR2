@@ -1,0 +1,43 @@
+---
+- name: Installer SNMP
+  ansible.builtin.apt:
+    name:
+      - snmpd
+      - snmp
+    state: present
+    update_cache: yes
+
+- name: Configurer snmpd
+  ansible.builtin.copy:
+    dest: /etc/snmp/snmpd.conf
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      # Écouter sur toutes les interfaces en UDP/161
+      agentAddress udp:161
+
+      # Informations système
+      sysLocation    "{{ snmp_location | default('Datacenter') }}"
+      sysContact     "{{ snmp_contact | default('admin@example.com') }}"
+
+      # Communauté SNMP
+      rocommunity {{ snmp_community }} {{ snmp_monitoring_network }}
+
+      # Informations de base
+      sysServices 76
+  notify: Redémarrer snmpd
+
+- name: Autoriser SNMP dans UFW
+  community.general.ufw:
+    rule: allow
+    port: '161'
+    proto: udp
+    from_ip: "{{ snmp_monitoring_network }}"
+  when: snmp_manage_ufw | default(true)
+
+- name: Activer et démarrer snmpd
+  ansible.builtin.systemd:
+    name: snmpd
+    state: started
+    enabled: yes
