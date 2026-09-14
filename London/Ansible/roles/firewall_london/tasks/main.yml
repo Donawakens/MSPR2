@@ -142,7 +142,33 @@
     name: strongswan-starter
     state: restarted
     enabled: yes
-
+    
 - name: Recharger UFW
   community.general.ufw:
     state: reloaded
+
+- name: Installer Tailscale
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://tailscale.com/install.sh | sh
+    creates: /usr/bin/tailscale
+
+- name: Vérifier si Tailscale est connecté
+  ansible.builtin.command:
+    cmd: tailscale status
+  register: tailscale_status
+  changed_when: false
+  failed_when: false
+
+- name: Connecter le firewall à Tailscale
+  ansible.builtin.command:
+    cmd: >
+      tailscale up
+      --auth-key={{ tailscale_auth_key }}
+      --advertise-routes=192.168.11.0/24
+  when: tailscale_status.rc != 0
+  no_log: true
+
+- name: Configurer la route Tailscale
+  ansible.builtin.command:
+    cmd: tailscale set --advertise-routes=192.168.11.0/24
+  when: tailscale_status.rc == 0
