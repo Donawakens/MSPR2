@@ -1,0 +1,6 @@
+---
+snmp_community: public
+snmp_monitoring_network: 0.0.0.0/0
+snmp_location: "Datacenter"
+snmp_contact: "admin@example.com"
+snmp_manage_ufw: true

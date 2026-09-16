@@ -15,3 +15,9 @@
     ad_dsrm_password: "Adminpassword1234"
   roles:
     - active_directory
+
+- name: Déploiement de SNMP
+  hosts: linux
+  become: yes
+  roles:
+    - snmp
