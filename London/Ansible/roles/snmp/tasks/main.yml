@@ -28,14 +28,6 @@
       sysServices 76
   notify: Redémarrer snmpd
 
-- name: Autoriser SNMP dans UFW
-  community.general.ufw:
-    rule: allow
-    port: '161'
-    proto: udp
-    from_ip: "{{ snmp_monitoring_network }}"
-  when: snmp_manage_ufw | default(true)
-
 - name: Activer et démarrer snmpd
   ansible.builtin.systemd:
     name: snmpd
