@@ -5,3 +5,9 @@
 
   roles:
     - firewall
+
+- name: Déploiement de SNMP
+  hosts: linux
+  become: yes
+  roles:
+    - snmp
