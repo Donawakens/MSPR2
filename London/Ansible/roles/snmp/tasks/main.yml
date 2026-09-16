@@ -22,7 +22,7 @@
       sysContact     "{{ snmp_contact | default('admin@example.com') }}"
 
       # Communauté SNMP
-      rocommunity {{ snmp_community }} {{ snmp_monitoring_network }}
+      rocommunity {{ snmp_community | default('public') }} {{ snmp_monitoring_network | default('0.0.0.0/0') }}
 
       # Informations de base
       sysServices 76

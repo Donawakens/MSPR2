@@ -24,7 +24,6 @@
 
 - name: Déploiement de SNMP
   hosts: linux
-  gather_facts: true
   become: yes
   roles:
     - snmp
